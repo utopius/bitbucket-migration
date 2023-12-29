@@ -26,6 +26,7 @@ while read PROJECT; do
         cd ${TARGET}
         gh repo delete "${TARGET}" --confirm || true
         gh repo create "${TARGET}" --private
+        for remote_name in $(git remote); do git remote remove "${remote_name}"; done
         git remote add origin git@github.com:${GITHUB_USER}/${TARGET}.git --mirror=push || true
         git push origin --mirror
         echo "gh repo delete '${TARGET}' --confirm || true" >> ../remove_from_github.sh
