@@ -3,6 +3,11 @@
 set -e
 
 GITHUB_USER=${1}
+if [ -z "${GITHUB_USER}" ]; then
+  echo "Usage: ./05-push-to-github.sh [GITHUB_USER]"
+  exit 1
+fi
+
 PROJECTSFILE_DEFAULT="work/projects.txt"
 PROJECTSFILE_PATH="${2:-$PROJECTSFILE_DEFAULT}"
 PROJECTSFILE="$(basename "${PROJECTSFILE_PATH}")"
