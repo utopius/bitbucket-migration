@@ -7,6 +7,7 @@ PROJECTSFILE_PATH="${1:-$PROJECTSFILE_DEFAULT}"
 PROJECTSFILE="$(basename "${PROJECTSFILE_PATH}")"
 WORK_DIR="$(dirname "${PROJECTSFILE_PATH}")"
 AUTHORS_FILE="authors.txt"
+MAILMAP_FILE="mailmap.txt"
 cd "${WORK_DIR}"
 
 if [ ! -f ${PROJECTSFILE} ]
@@ -22,16 +23,25 @@ while read PROJECT; do
         do echo "- ${d%/}";
         rm -f ${AUTHORS_FILE}
         cd $d
-        git log --all --format='%aN <%cE>' | sort -u >> ${AUTHORS_FILE}
-        cat ${AUTHORS_FILE} >> ../${AUTHORS_FILE}
+        git log --all --format='%aN <%cE>' | sort -u > ${AUTHORS_FILE}
         cd ..
     done
+    find . -type f -name "${AUTHORS_FILE}" -exec cat {} + | sort -u > ${AUTHORS_FILE}
     cd ..
 done < ${PROJECTSFILE}
 
+rm -f ${AUTHORS_FILE}
 find . -type f -name "${AUTHORS_FILE}" -exec cat {} + | sort -u > ${AUTHORS_FILE}
 echo
 echo "Created ${AUTHORS_FILE} in ${WORK_DIR}:"
 cat authors.txt
-echo "Transform it into git-mailmap format and run 04-migrate-bare-to-github.sh"
+if [ ! -f ${MAILMAP_FILE} ]
+then
+    cp ${AUTHORS_FILE} ${MAILMAP_FILE}
+else
+    echo
+    echo "WARN: ${MAILMAP_FILE} already exists, please adjust takeover authors from ${AUTHORS_FILE} manually"
+fi
+echo
+echo "Please update ${MAILMAP_FILE} with contents of ${AUTHORS_FILE} in git-mailmap format and run 04-transform-authors.sh"
 cd ..
